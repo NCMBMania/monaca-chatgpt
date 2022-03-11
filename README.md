@@ -1,58 +1,35 @@
-## Framework7 CLI Options
+# Monaca × Framework7 × NCMBのベースアプリ
 
-Framework7 app created with following options:
+Monacaで公開されているFramework7テンプレートはv6.0.11や5系で古くなっているので、オリジナルのテンプレートを作成しました。
+
+## 使い方
+
+インポートにて、下記URLを指定してください。
 
 ```
+https://github.com/NCMBMania/MonacaFramework7Base/archive/refs/heads/main.zip
+```
+
+## ライブラリのバージョン
+
+- Framework7: 6.3.16
+- NCMB JavaScript SDK: 3.1.3
+
+## NCMBの初期化
+
+NCMBの初期化処理は実行済みです（`js/app.js` にて）。ただしアプリケーションキー、クライアントキーは書き換えてください。
+
+`js/config.json` を開くと、次のようになっています。
+
+```json
 {
-  "cwd": "/Users/asial/Documents/framework7-tab-view",
-  "type": [
-    "web"
-  ],
-  "name": "tabs",
-  "framework": "core",
-  "template": "tabs",
-  "bundler": false,
-  "theming": {
-    "customColor": false,
-    "color": "#007aff",
-    "darkTheme": false,
-    "iconFonts": true,
-    "fillBars": false
-  },
-  "customBuild": false
+	"applicationKey": "YOUR_APPLICATION_KEY",
+	"clientKey": "YOUR_CLIENT_KEY"
 }
 ```
 
-## NPM Scripts
+この `YOUR_APPLICATION_KEY` と `YOUR_CLIENT_KEY` を書き換えてください。
 
-* 🔥 `start` - run development server
-* 🔧 `serve` - run development server
-## Assets
+## License
 
-Assets (icons, splash screens) source images located in `assets-src` folder. To generate your own icons and splash screen images, you will need to replace all assets in this directory with your own images (pay attention to image size and format), and run the following command in the project directory:
-
-```
-framework7 assets
-```
-
-Or launch UI where you will be able to change icons and splash screens:
-
-```
-framework7 assets --ui
-```
-
-
-
-## Documentation & Resources
-
-* [Framework7 Core Documentation](https://framework7.io/docs/)
-
-
-
-* [Framework7 Icons Reference](https://framework7.io/icons/)
-* [Community Forum](https://forum.framework7.io)
-
-## Support Framework7
-
-Love Framework7? Support project by donating or pledging on patreon:
-https://patreon.com/vladimirkharlampidi
+MIT.
