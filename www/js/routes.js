@@ -1,5 +1,4 @@
-
-var routes = [
+const routes = [
   {
     path: '/',
     url: './index.html',

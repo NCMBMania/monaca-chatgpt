@@ -1,6 +1,4 @@
-
-
-var createStore = Framework7.createStore;
+const createStore = Framework7.createStore;
 const store = createStore({
   state: {
     products: [
