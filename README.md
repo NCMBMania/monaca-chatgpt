@@ -12,7 +12,7 @@ https://github.com/NCMBMania/MonacaFramework7Base/archive/refs/heads/main.zip
 
 ## ライブラリのバージョン
 
-- Framework7: 6.3.16
+- Framework7: 7.0.2
 - NCMB JavaScript SDK: 3.1.3
 
 ## NCMBの初期化
