@@ -13,7 +13,8 @@ $('#my-login-screen .login-button').on('click', function () {
 });
 
 // NCMBの初期化用
-(async () => {
+const event = window.cordova ? 'deviceready' : 'DOMContentLoaded';
+document.addEventListener(event, async (e) => {
   const config = await (await fetch('./js/config.json')).json();
   window.ncmb = new NCMB(config.applicationKey, config.clientKey);
   window.app = new Framework7({
@@ -25,4 +26,4 @@ $('#my-login-screen .login-button').on('click', function () {
     // App routes
     routes: routes,
   });
-})();
+});
