@@ -28,14 +28,14 @@
     }
   },
   "dependencies": {
-    "cordova-plugin-splashscreen": "6.0.0",
-    "cordova-plugin-statusbar": "2.4.3",
+    "cordova-plugin-splashscreen": "^6.0.1",
+    "cordova-plugin-statusbar": "3.0.0",
     "cordova-plugin-whitelist": "1.3.5",
     "dom7": "^3.0.0",
-    "framework7": "^7.0.4",
+    "framework7": "^7.0.5",
     "framework7-icons": "^5.0.5",
     "monaca-plugin-monaca-core": "3.3.1",
-    "skeleton-elements": "^3.3.0",
+    "skeleton-elements": "^4.0.0",
     "swiper": "^8.1.4"
   },
   "devDependencies": {
