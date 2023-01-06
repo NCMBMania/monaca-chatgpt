@@ -7,9 +7,10 @@
   "license": "UNLICENSED",
   "scripts": {
     "dev": "browser-sync start -s www/ --watch --port 8080 --ui-port 8081",
-    "copy-f7": "cpy ./node_modules/framework7-icons/fonts/*.* ./www/fonts/",
+    "copy-f7-font": "cp ./node_modules/framework7-icons/fonts/*.* ./www/fonts/",
+    "copy-f7": "cp node_modules/framework7/*.js node_modules/framework7/*.css ./www/framework7/",
     "monaca:preview": "npm run dev",
-    "prepare": "npm run copy-f7"
+    "prepare": "npm run copy-f7 && npm run copy-f7-font"
   },
   "browserslist": [
     "Android >= 7",
