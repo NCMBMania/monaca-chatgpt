@@ -1,13 +1,13 @@
 /**
- * Framework7 7.1.1
+ * Framework7 7.1.5
  * Full featured mobile HTML framework for building iOS & Android apps
  * https://framework7.io/
  *
- * Copyright 2014-2022 Vladimir Kharlampidi
+ * Copyright 2014-2023 Vladimir Kharlampidi
  *
  * Released under the MIT License
  *
- * Released on: December 16, 2022
+ * Released on: February 2, 2023
  */
 
 (function (global, factory) {
@@ -204,15 +204,15 @@
     }
 
     /**
-     * Dom7 4.0.4
+     * Dom7 4.0.6
      * Minimalistic JavaScript library for DOM manipulation, with a jQuery-compatible API
      * https://framework7.io/docs/dom7.html
      *
-     * Copyright 2022, Vladimir Kharlampidi
+     * Copyright 2023, Vladimir Kharlampidi
      *
      * Licensed under MIT
      *
-     * Released on: January 11, 2022
+     * Released on: February 2, 2023
      */
     /* eslint-disable no-proto */
 
@@ -749,6 +749,22 @@
             delete el.dom7EventData;
           }
         }
+      }
+
+      return this;
+    }
+
+    function transitionStart(callback) {
+      const dom = this;
+
+      function fireCallBack(e) {
+        if (e.target !== this) return;
+        callback.call(this, e);
+        dom.off('transitionstart', fireCallBack);
+      }
+
+      if (callback) {
+        dom.on('transitionstart', fireCallBack);
       }
 
       return this;
@@ -1830,6 +1846,7 @@
         transform: transform,
         transition: transition,
         transitionEnd: transitionEnd,
+        transitionStart: transitionStart,
         trigger: trigger,
         val: val,
         value: value,
@@ -6469,15 +6486,20 @@
         if (((options.reloadCurrent || reloadDetail && otherDetailPageEl) && router.history.length) > 0 || options.replaceState) {
           if (reloadDetail && detailsInBetweenRemoved > 0) {
             router.history = router.history.slice(0, router.history.length - detailsInBetweenRemoved);
+            router.propsHistory = router.propsHistory.slice(0, router.propsHistory.length - detailsInBetweenRemoved);
           }
 
           router.history[router.history.length - (options.reloadPrevious ? 2 : 1)] = url;
+          router.propsHistory[router.propsHistory.length - (options.reloadPrevious ? 2 : 1)] = options.props || {};
         } else if (options.reloadPrevious) {
           router.history[router.history.length - 2] = url;
+          router.propsHistory[router.propsHistory.length - 2] = options.props || {};
         } else if (options.reloadAll) {
           router.history = [url];
+          router.propsHistory = [options.props || {}];
         } else {
           router.history.push(url);
+          router.propsHistory.push(options.props || {});
         }
       }
 
@@ -7728,11 +7750,13 @@
           if (router.history.indexOf(options.route.url) >= 0) {
             backIndex = router.history.length - router.history.indexOf(options.route.url) - 1;
             router.history = router.history.slice(0, router.history.indexOf(options.route.url) + 2);
+            router.propsHistory = router.propsHistory.slice(0, router.history.indexOf(options.route.url) + 2);
             view.history = router.history;
           } else if (router.history[[router.history.length - 2]]) {
-            router.history[router.history.length - 2] = options.route.url;
+            router.propsHistory[router.propsHistory.length - 2] = options.props || {};
           } else {
             router.history.unshift(router.url);
+            router.propsHistory.unshift(options.props || {});
           }
 
           if (backIndex && router.params.stackPages) {
@@ -7935,12 +7959,15 @@
 
       if (options.replaceState) {
         router.history[router.history.length - 1] = options.route.url;
+        router.propsHistory[router.propsHistory.length - 1] = options.props || {};
       } else {
         if (router.history.length === 1) {
           router.history.unshift(router.url);
+          router.propsHistory.unshift(options.props || {});
         }
 
         router.history.pop();
+        router.propsHistory.pop();
       }
 
       router.saveHistory(); // Current Page & Navbar
@@ -8030,7 +8057,8 @@
 
         if (preloadPreviousPage && router.history[router.history.length - 2] && !isMaster) {
           router.back(router.history[router.history.length - 2], {
-            preload: true
+            preload: true,
+            props: router.propsHistory[router.propsHistory.length - 2] || {}
           });
         }
 
@@ -8161,6 +8189,7 @@
       if (router.swipeBackActive) return router;
       let navigateUrl;
       let navigateOptions;
+      let navigateProps;
       let route;
 
       if (typeof (arguments.length <= 0 ? undefined : arguments[0]) === 'object') {
@@ -8260,6 +8289,7 @@
 
           router.currentRoute = previousRoute;
           router.history.pop();
+          router.propsHistory.pop();
           router.saveHistory();
 
           if (needHistoryBack && isBrokenBrowserHistory && !currentRouteWithoutBrowserHistory) {
@@ -8313,7 +8343,8 @@
       if (!navigateOptions.force && $previousPage.length && !skipMaster) {
         if (router.params.browserHistory && $previousPage[0].f7Page && router.history[router.history.length - 2] !== $previousPage[0].f7Page.route.url) {
           router.back(router.history[router.history.length - 2], extend(navigateOptions, {
-            force: true
+            force: true,
+            props: router.propsHistory[router.propsHistory.length - 2] || {}
           }));
           return router;
         }
@@ -8350,12 +8381,14 @@
 
       if (!navigateUrl && router.history.length > 1) {
         navigateUrl = router.history[router.history.length - 2];
+        navigateProps = router.propsHistory[router.propsHistory.length - 2] || {};
       }
 
       if (skipMaster && !navigateOptions.force && router.history[router.history.length - 3]) {
         return router.back(router.history[router.history.length - 3], extend({}, navigateOptions || {}, {
           force: true,
-          animate: false
+          animate: false,
+          props: router.propsHistory[router.propsHistory.length - 3] || {}
         }));
       }
 
@@ -8391,9 +8424,13 @@
       const options = {};
 
       if (route.route.options) {
-        extend(options, route.route.options, navigateOptions);
+        extend(options, route.route.options, navigateOptions, {
+          props: navigateProps || {}
+        });
       } else {
-        extend(options, navigateOptions);
+        extend(options, navigateOptions, {
+          props: navigateProps || {}
+        });
       }
 
       options.route = route;
@@ -8553,6 +8590,7 @@
             params: view.params,
             routes: view.routes,
             history: view.history,
+            propsHistory: [],
             scrollHistory: view.scrollHistory,
             cache: app.cache,
             dynamicNavbar: app.theme === 'ios' && view.params.iosDynamicNavbar,
@@ -9717,12 +9755,12 @@
           }
         } else {
           if (browserHistoryRoot && documentUrl.indexOf(browserHistoryRoot) >= 0) {
-            documentUrl = documentUrl.split(browserHistoryRoot)[1];
+            documentUrl = documentUrl.substring(documentUrl.indexOf(browserHistoryRoot) + browserHistoryRoot.length);
             if (documentUrl === '') documentUrl = '/';
           }
 
           if (browserHistorySeparator.length > 0 && documentUrl.indexOf(browserHistorySeparator) >= 0) {
-            initialUrl = documentUrl.split(browserHistorySeparator)[1];
+            initialUrl = documentUrl.substring(documentUrl.indexOf(browserHistorySeparator) + browserHistorySeparator.length);
           } else {
             initialUrl = documentUrl;
           }

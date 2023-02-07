@@ -10,7 +10,7 @@
     "copy-f7-font": "cp ./node_modules/framework7-icons/fonts/*.* ./www/fonts/",
     "copy-f7": "cp node_modules/framework7/*.js node_modules/framework7/*.css ./www/framework7/",
     "monaca:preview": "npm run dev",
-    "prepare": "npm run copy-f7 && npm run copy-f7-font"
+    "update-f7": "npm run copy-f7 && npm run copy-f7-font"
   },
   "browserslist": [
     "Android >= 7",
