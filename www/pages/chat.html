@@ -1,0 +1,97 @@
+<template>
+  <div class="page" data-name="chat"> <!-- ページ全体のコンテナ -->
+    <div class="navbar"> <!-- ナビゲーションバー -->
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner sliding">
+        <div class="title">AIチャット</div> <!-- タイトル -->
+      </div>
+    </div>
+    <div class="toolbar messagebar"> <!-- メッセージツールバー -->
+      <div class="toolbar-inner">
+        <div class="messagebar-area">
+          <textarea class="resizable" placeholder="Message"></textarea> <!-- テキストエリア -->
+        </div>
+        <a class="link icon-only demo-send-message-link" @click=${send}> <!-- メッセージ送信ボタン -->
+          <i class="icon f7-icons if-not-md">arrow_up_circle_fill</i>
+          <i class="icon material-icons md-only">send</i>
+        </a>
+      </div>
+      <div class="messagebar-sheet">
+      </div>
+    </div>
+    <div class="page-content messages-content"> <!-- メッセージ表示エリア -->
+      <div class="messages"> <!-- メッセージ表示用の要素 -->
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+export default (props, { $f7, $onMounted, $store, $update, $tick }) => {
+  const Chat = ncmb.DataStore("Chat"); // データストア"Chat"の生成
+  let messages; // メッセージを表示するための変数
+  let messageBar; // メッセージを入力するための変数
+  const chats = []; // チャット履歴を保持するための配列
+  $onMounted(async () => { // コンポーネントがマウントされたときに実行される関数
+    messages = $f7.messages.create({ // messagesの初期化
+      el: $('.messages'), // 表示する要素
+    });
+    messageBar = $f7.messagebar.create({ // messageBarの初期化
+      el: $('.messagebar'), // 入力する要素
+      attachments: [] // 添付ファイルの初期値
+    });
+    const date = new Date;
+    date.setDate(date.getDate() - 1);
+    const ary = await Chat
+      .greaterThanOrEqualTo('createDate', date) // createDateが指定日以降のデータを取得
+      .fetchAll(); // 取得した全てのデータを配列で取得
+    ary.forEach(chat => addMessage(chat)); // 取得したデータをメッセージ表示エリアに追加
+    $update(); // レンダリングの更新
+  });
+
+  const addMessage = (chat) => { // メッセージ表示エリアにメッセージを追加する関数
+    messages.addMessage({ // メッセージを追加
+      text: chat.content, // メッセージの内容
+      type: chat.role === 'user' ? 'sent' : 'received', // メッセージの送信元
+      name: chat.role === 'user' ? 'Me': 'Chat GPT', // メッセージの送信先
+      avatar: chat.role === 'user' ? '/assets/icons/person.png' : '/assets/icons/robot.png', // アバター画像
+    });
+    chats.push(chat); // チャット履歴に追加
+  };
+  const saveChat = (role, content) => { // チャットを保存する関数
+    const chat = new Chat(); // 新しいチャットを生成
+    return chat
+      .set('content', content) // チャットの内容を設定
+      .set('role', role) // チャットの送信元を設定
+      .save(); // チャットを保存
+  };
+  const send = async () => { // メッセージ送信のイベントハンドラ
+    const content = messageBar.getValue().replace(/\n/g, '<br />').trim(); // 入力されたメッセージを取得
+    if (content === '') return; // メッセージが空の場合は送信しない
+    const chat = await saveChat('user', content); // チャットを保存
+    addMessage(chat); // メッセージ表示エリアにメッセージを追加
+    $update(); // レンダリングの更新
+    await $tick(); // レンダリングの完了を待つ
+    // ここからAIチャット
+    const pastMessages = chats.map(chat => { // チャット履歴をAIに送信するための配列を作成
+      return {
+        role: chat.role,
+        content: chat.content,
+      };
+    });
+    messages.showTyping(); // タイピング中の表示
+    const res = await ncmb.Script // テキスト生成スクリプトを実行
+      .data({
+        content,
+        messages: pastMessages,
+      })
+      .exec("POST", "text.js");
+    const { text } = JSON.parse(res.body); // スクリプトの結果を取得
+    const aiChat = await saveChat('assistant', text); // AIの返答を保存
+    addMessage(aiChat); // メッセージ表示エリアにAIの返答を追加
+    $update(); // レンダリングの更新
+    messageBar.clear(); // 入力欄をクリア
+    messages.hideTyping(); // タイピング中の表示を非表示にする
+  };
+  return $render;
+}
+</script>
