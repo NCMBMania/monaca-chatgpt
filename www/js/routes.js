@@ -3,6 +3,7 @@ const routes = [
     path: '/',
     url: './index.html',
   },
+  // チャット画面
   {
     path: '/home/',
     componentUrl: './pages/chat.html',

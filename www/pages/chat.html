@@ -88,9 +88,9 @@ export default (props, { $f7, $onMounted, $store, $update, $tick }) => {
     const { text } = JSON.parse(res.body); // スクリプトの結果を取得
     const aiChat = await saveChat('assistant', text); // AIの返答を保存
     addMessage(aiChat); // メッセージ表示エリアにAIの返答を追加
+    messages.hideTyping(); // タイピング中の表示を非表示にする
     $update(); // レンダリングの更新
     messageBar.clear(); // 入力欄をクリア
-    messages.hideTyping(); // タイピング中の表示を非表示にする
   };
   return $render;
 }
